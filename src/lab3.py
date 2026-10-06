@@ -17,182 +17,275 @@
 # 5. Створено інтерактивне меню для користувача.
 # =================================================================
 
-from collections import defaultdict
-from functools import reduce
-import datetime
+from functools import reduce 
 
 # Приклад: Аналіз даних про продажі
 # ЗАМІНІТЬ ЦІ ДАНІ ТА ЛОГІКУ НА ВАШІ ВЛАСНІ
 
-# 1. Підготовка даних
-sales_data = [
-    {"date": "2023-01-01", "product": "Laptop", "category": "Electronics", "price": 1200, "quantity": 5},
-    {"date": "2023-01-02", "product": "Smartphone", "category": "Electronics", "price": 800, "quantity": 10},
-    {"date": "2023-01-03", "product": "T-shirt", "category": "Clothing", "price": 20, "quantity": 50},
-    {"date": "2023-01-04", "product": "Jeans", "category": "Clothing", "price": 60, "quantity": 30},
-    {"date": "2023-01-05", "product": "Keyboard", "category": "Electronics", "price": 75, "quantity": 20},
+# Дані про погоду
+weather = [
+    {"city": "Київ", "temperature": 15, "rain": 2, "wind": 4},
+    {"city": "Донецьк", "temperature": 12, "rain": 5, "wind": 6},
+    {"city": "Одеса", "temperature": 19, "rain": 0, "wind": 3},
+    {"city": "Дніпро", "temperature": 17, "rain": 1, "wind": 5},
+    {"city": "Харків", "temperature": 14, "rain": 3, "wind": 7}
 ]
 
-# 2. Функції для роботи з даними
-def add_sale(data, sale):
-    """Додає новий запис про продаж."""
-    data.append(sale)
-    print("Продаж додано успішно.")
+# 1. Виведення всіх даних
+def show_weather():
+    print("\n--- Дані про погоду ---")
 
-def remove_sale(data, index):
-    """Видаляє запис про продаж за індексом."""
-    if 0 <= index < len(data):
-        del data[index]
-        print("Продаж видалено успішно.")
-    else:
-        print("Невірний індекс.")
+    for item in weather:
+        print(
+            item["city"],
+            "| Температура:", item["temperature"], "°C",
+            "| Опади:", item["rain"], "мм",
+            "| Вітер:", item["wind"], "м/с"
+        )
 
-def update_sale(data, index, key, value):
-    """Оновлює інформацію про продаж."""
-    if 0 <= index < len(data):
-        # Перетворення значення до відповідного типу
-        if key in ['price', 'quantity']:
-            try:
-                value = float(value) if key == 'price' else int(value)
-            except ValueError:
-                print(f"Невірний тип значення для ключа '{key}'")
-                return
-        data[index][key] = value
-        print("Інформацію оновлено успішно.")
-    else:
-        print("Невірний індекс.")
 
-def find_sales_by_product(data, product):
-    """Знаходить всі продажі конкретного продукту."""
-    return list(filter(lambda x: x["product"].lower() == product.lower(), data))
+# 2. Додавання нового запису
+def add_weather():
+    city = input("Введіть місто: ")
+    temperature = float(input("Температура: "))
+    rain = float(input("Кількість опадів: "))
+    wind = float(input("Швидкість вітру: "))
 
-# 3. Специфічні функції аналізу
-def calculate_total_sales(data):
-    """Обчислює загальну суму продажів."""
-    return reduce(lambda acc, sale: acc + sale["price"] * sale["quantity"], data, 0)
+    new_data = {
+        "city": city,
+        "temperature": temperature,
+        "rain": rain,
+        "wind": wind
+    }
 
-def calculate_average_price(data):
-    """Обчислює середню ціну товару."""
-    prices = [sale["price"] for sale in data]
-    return sum(prices) / len(prices) if prices else 0
+    weather.append(new_data)
 
-# 4. Вбудовані функції та методи
-def sort_sales_by_date(data):
-    """Сортує продажі за датою."""
-    return sorted(data, key=lambda x: datetime.datetime.strptime(x["date"], "%Y-%m-%d"))
+    print("Дані додано.")
 
-# 5. Робота з множинами та словниками
-def group_sales_by_category(data):
-    """Групує продажі за категоріями."""
-    categories = defaultdict(list)
-    for sale in data:
-        categories[sale["category"]].append(sale)
-    return dict(categories)
+# 3. Видалення запису
+def delete_weather():
+    city = input("Введіть місто для видалення: ")
 
-def find_best_selling_product(data):
-    """Знаходить товар, який найкраще продається."""
-    if not data:
-        return None
-    products = defaultdict(int)
-    for sale in data:
-        products[sale["product"]] += sale["quantity"]
-    return max(products, key=products.get)
+    for item in weather:
+        if item["city"].lower() == city.lower():
+            weather.remove(item)
+            print("Дані видалено.")
+            return
 
-# 6. Інтерактивне меню
-def print_menu():
-    """Виводить меню опцій."""
-    print("\n==== Меню аналізу продажів (ПРИКЛАД) ====")
-    print("1. Показати всі продажі")
-    print("2. Додати новий продаж")
-    print("3. Видалити продаж")
-    print("4. Оновити інформацію про продаж")
-    print("5. Знайти продажі за назвою товару")
-    print("6. Обчислити загальну суму продажів")
-    print("7. Групувати продажі за категоріями")
-    print("8. Сортувати продажі за датою")
-    print("9. Знайти товар, який найкраще продається")
-    print("10. Обчислити середню ціну товару")
-    print("0. Вийти")
+    print("Місто не знайдено.")
 
-def main():
-    """Головна функція програми."""
-    global sales_data
-    while True:
-        print_menu()
-        choice = input("Оберіть опцію: ")
+#4. Оновлення даних
 
-        if choice == "1":
-            if not sales_data:
-                print("Немає даних про продажі.")
-            for i, sale in enumerate(sales_data):
-                print(f"{i}: {sale}")
-        elif choice == "2":
-            try:
-                date = input("Введіть дату (YYYY-MM-DD): ")
-                datetime.datetime.strptime(date, "%Y-%m-%d") # перевірка формату
-                product = input("Введіть назву товару: ")
-                category = input("Введіть категорію: ")
-                price = float(input("Введіть ціну: "))
-                quantity = int(input("Введіть кількість: "))
-                new_sale = {"date": date, "product": product, "category": category, "price": price, "quantity": quantity}
-                add_sale(sales_data, new_sale)
-            except ValueError:
-                print("Помилка введення. Перевірте формат дати, ціни та кількості.")
-        elif choice == "3":
-            try:
-                index = int(input("Введіть індекс продажу для видалення: "))
-                remove_sale(sales_data, index)
-            except ValueError:
-                print("Невірний індекс. Введіть число.")
-        elif choice == "4":
-            try:
-                index = int(input("Введіть індекс продажу для оновлення: "))
-                if not (0 <= index < len(sales_data)):
-                    print("Невірний індекс.")
-                    continue
-                key = input("Введіть ключ для оновлення (date/product/category/price/quantity): ")
-                if key not in sales_data[0]:
-                    print("Невірний ключ.")
-                    continue
-                value = input("Введіть нове значення: ")
-                update_sale(sales_data, index, key, value)
-            except ValueError:
-                print("Невірний індекс. Введіть існуючий числовий індекс.")
-        elif choice == "5":
-            product = input("Введіть назву товару для пошуку: ")
-            results = find_sales_by_product(sales_data, product)
-            if results:
-                for sale in results:
-                    print(sale)
-            else:
-                print(f"Продажі для товару '{product}' не знайдено.")
-        elif choice == "6":
-            total = calculate_total_sales(sales_data)
-            print(f"Загальна сума продажів: {total}")
-        elif choice == "7":
-            grouped = group_sales_by_category(sales_data)
-            for category, sales in grouped.items():
-                print(f"\nКатегорія: {category}:")
-                for sale in sales:
-                    print(f"  {sale}")
-        elif choice == "8":
-            sorted_sales = sort_sales_by_date(sales_data)
-            for sale in sorted_sales:
-                print(sale)
-        elif choice == "9":
-            best_product = find_best_selling_product(sales_data)
-            if best_product:
-                print(f"Товар, який найкраще продається: {best_product}")
-            else:
-                print("Немає даних для аналізу.")
-        elif choice == "10":
-            avg_price = calculate_average_price(sales_data)
-            print(f"Середня ціна товару: {avg_price:.2f}")
-        elif choice == "0":
-            print("Дякуємо за використання програми!")
-            break
+def update_weather():
+    city = input("Введіть місто: ")
+
+    for item in weather:
+        if item["city"].lower() == city.lower():
+
+            item["temperature"] = float(input("Нова температура: "))
+            item["rain"] = float(input("Нові опади: "))
+            item["wind"] = float(input("Нова швидкість вітру: "))
+
+            print("Дані оновлено.")
+            return
+
+    print("Місто не знайдено.")
+
+#5. Пошук
+def search_weather():
+    city = input("Введіть місто: ")
+
+    for item in weather:
+        if item["city"].lower() == city.lower():
+
+            print("\nЗнайдено:")
+            print("Місто:", item["city"])
+            print("Температура:", item["temperature"], "°C")
+            print("Опади:", item["rain"], "мм")
+            print("Вітер:", item["wind"], "м/с")
+
+            return
+
+    print("Місто не знайдено.")
+
+
+#6. Фільтрація
+def filter_weather():
+    value = float(input("Показати міста з температурою вище: "))
+
+    result = list(
+        filter(lambda x: x["temperature"] > value, weather)
+    )
+
+    print("\nРезультат:")
+
+    for item in result:
+        print(item["city"], "-", item["temperature"], "°C")
+
+#7. Статистика
+def statistics():
+    temperatures = list(
+        map(lambda x: x["temperature"], weather)
+    )
+
+    average = sum(temperatures) / len(temperatures)
+
+    print("\n--- Статистика ---")
+    print("Середня температура:", round(average, 2), "°C")
+    print("Мінімальна температура:", min(temperatures), "°C")
+    print("Максимальна температура:", max(temperatures), "°C")
+
+#8. Групування
+def group_weather():
+    groups = {
+        "Холодно": [],
+        "Тепло": []
+    }
+
+    for item in weather:
+
+        if item["temperature"] < 15:
+            groups["Холодно"].append(item["city"])
         else:
-            print("Невірний вибір. Спробуйте ще раз.")
+            groups["Тепло"].append(item["city"])
 
-if __name__ == "__main__":
-    main()
+    print("\n--- Групування ---")
+
+    for group in groups:
+        print(group, ":", groups[group])
+
+
+#9. map(), filter(), reduce()
+def built_in_functions():
+
+    # map - отримуємо список температур
+    temperatures = list(
+        map(lambda x: x["temperature"], weather)
+    )
+
+    # filter - міста без опадів
+    no_rain = list(
+        filter(lambda x: x["rain"] == 0, weather)
+    )
+
+    # reduce - сума опадів
+    total_rain = reduce(
+        lambda total, x: total + x["rain"],
+        weather,
+        0
+    )
+
+    print("\nТемператури:")
+    print(temperatures)
+
+    print("\nМіста без опадів:")
+
+    for item in no_rain:
+        print(item["city"])
+
+    print("\nЗагальна кількість опадів:", total_rain, "мм")
+
+
+#10. Сортування та зрізи
+def sorting():
+
+    sorted_weather = sorted(
+        weather,
+        key=lambda x: x["temperature"]
+    )
+
+    print("\nВід найхолоднішого до найтеплішого:")
+
+    for item in sorted_weather:
+        print(item["city"], item["temperature"], "°C")
+
+    print("\nПерші 3 записи:")
+    print(weather[:3])
+
+
+#11. Множини та словники
+def sets_and_dicts():
+
+    # Створюємо множину міст
+    cities = set()
+
+    for item in weather:
+        cities.add(item["city"])
+
+    print("\nМножина міст:")
+    print(cities)
+
+    # Приклад двох множин
+    set1 = {"Київ", "Львів", "Одеса"}
+    set2 = {"Київ", "Дніпро", "Харків"}
+
+    print("\nОб'єднання:")
+    print(set1 | set2)
+
+    print("Перетин:")
+    print(set1 & set2)
+
+    print("Різниця:")
+    print(set1 - set2)
+
+    # Словник для підрахунку температур
+    temperature_count = {}
+
+    for item in weather:
+        temp = item["temperature"]
+
+        if temp in temperature_count:
+            temperature_count[temp] += 1
+        else:
+            temperature_count[temp] = 1
+
+    print("\nЧастота температур:")
+    print(temperature_count)
+
+
+# Головне меню
+while True:
+
+    print("\n========== МЕНЮ ==========")
+    print("1 - Показати всі дані")
+    print("2 - Додати дані")
+    print("3 - Видалити дані")
+    print("4 - Оновити дані")
+    print("5 - Пошук міста")
+    print("6 - Фільтрація")
+    print("7 - Статистика")
+    print("8 - Групування")
+    print("9 - map(), filter(), reduce()")
+    print("10 - Сортування та зрізи")
+    print("11 - Множини та словники")
+    print("0 - Вихід")
+
+    choice = input("Оберіть дію: ")
+
+    if choice == "1":
+        show_weather()
+    elif choice == "2":
+        add_weather()
+    elif choice == "3":
+        delete_weather()
+    elif choice == "4":
+       update_weather()
+    elif choice == "5":
+        search_weather()
+    elif choice == "6":
+        filter_weather()
+    elif choice == "7":
+        statistics()
+    elif choice == "8":
+        group_weather()
+    elif choice == "9":
+        built_in_functions()
+    elif choice == "10":
+        sorting()
+    elif choice == "11":
+        sets_and_dicts()
+    elif choice == "0":
+        print("Програму завершено.")
+        break
+    else:  
+    print("Невірний пункт меню.")
